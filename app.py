@@ -109,7 +109,7 @@ def save_options(options):
 # --- AI生成モード（Gemini API：無料枠で利用可能） ---
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
 USE_AI = bool(GEMINI_API_KEY)
-GEMINI_MODEL = "gemini-2.0-flash"
+GEMINI_MODEL = "gemini-1.5-flash"
 GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent"
 
 
