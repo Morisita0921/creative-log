@@ -393,10 +393,7 @@ def edit_option(category):
 def generate():
     data = request.json
     try:
-        if USE_AI:
-            text = generate_ai(data)
-        else:
-            text = generate_template(data)
+        text = generate_template(data)
         return jsonify({"success": True, "text": text})
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
