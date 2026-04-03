@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理画面 - CreativeLog</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', 'Hiragino Sans', 'Meiryo', sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 24px 0;
+            border-bottom: 1px solid #1e293b;
+            margin-bottom: 24px;
+        }
+
+        header h1 {
+            font-size: 24px;
+            color: #f59e0b;
+            margin-bottom: 4px;
+        }
+
+        header p { font-size: 14px; color: #64748b; }
+
+        .back-link {
+            display: inline-block;
+            color: #38bdf8;
+            text-decoration: none;
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+
+        .back-link:hover { text-decoration: underline; }
+
+        .section {
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #38bdf8;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .item-count {
+            font-size: 12px;
+            color: #64748b;
+            font-weight: 400;
+        }
+
+        .add-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .add-input {
+            flex: 1;
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid #334155;
+            background: #0f172a;
+            color: #e2e8f0;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .add-input:focus { outline: none; border-color: #38bdf8; }
+        .add-input::placeholder { color: #475569; }
+
+        .add-btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            background: #0284c7;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .add-btn:hover { background: #0369a1; }
+
+        .item-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .item-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .item-text {
+            flex: 1;
+            color: #e2e8f0;
+        }
+
+        .item-edit-input {
+            flex: 1;
+            padding: 4px 8px;
+            border-radius: 4px;
+            border: 1px solid #38bdf8;
+            background: #1e293b;
+            color: #e2e8f0;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .item-edit-input:focus { outline: none; }
+
+        .item-btn {
+            padding: 4px 10px;
+            border-radius: 4px;
+            border: none;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .btn-edit {
+            background: transparent;
+            border: 1px solid #64748b;
+            color: #94a3b8;
+        }
+
+        .btn-edit:hover { border-color: #38bdf8; color: #38bdf8; }
+
+        .btn-save {
+            background: #0284c7;
+            color: white;
+        }
+
+        .btn-save:hover { background: #0369a1; }
+
+        .btn-cancel {
+            background: transparent;
+            border: 1px solid #64748b;
+            color: #94a3b8;
+        }
+
+        .btn-delete {
+            background: transparent;
+            border: 1px solid #64748b;
+            color: #94a3b8;
+        }
+
+        .btn-delete:hover { border-color: #f87171; color: #f87171; }
+
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: #34d399;
+            color: #0f172a;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+
+        .toast.visible {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>管理画面</h1>
+            <p>選択肢の追加・変更・削除</p>
+        </header>
+
+        <a href="/" class="back-link">&larr; 記録入力画面に戻る</a>
+
+        <!-- 活動内容 -->
+        <div class="section">
+            <div class="section-title">
+                活動内容
+                <span class="item-count" id="activitiesCount"></span>
+            </div>
+            <div class="add-row">
+                <input type="text" class="add-input" id="addActivityInput" placeholder="新しい活動内容を入力...">
+                <button class="add-btn" onclick="addOption('activities', 'addActivityInput')">追加</button>
+            </div>
+            <div class="item-list" id="activitiesList"></div>
+        </div>
+
+        <!-- 取り組み姿勢 -->
+        <div class="section">
+            <div class="section-title">
+                取り組み姿勢
+                <span class="item-count" id="behaviorsCount"></span>
+            </div>
+            <div class="add-row">
+                <input type="text" class="add-input" id="addBehaviorInput" placeholder="新しい取り組み姿勢を入力...">
+                <button class="add-btn" onclick="addOption('behaviors', 'addBehaviorInput')">追加</button>
+            </div>
+            <div class="item-list" id="behaviorsList"></div>
+        </div>
+
+        <!-- 全体の印象 -->
+        <div class="section">
+            <div class="section-title">
+                全体の印象
+                <span class="item-count" id="impressionsCount"></span>
+            </div>
+            <div class="add-row">
+                <input type="text" class="add-input" id="addImpressionInput" placeholder="新しい印象を入力...">
+                <button class="add-btn" onclick="addOption('impressions', 'addImpressionInput')">追加</button>
+            </div>
+            <div class="item-list" id="impressionsList"></div>
+        </div>
+
+        <!-- 利用者管理 -->
+        <div class="section">
+            <div class="section-title">
+                利用者
+                <span class="item-count" id="membersCount"></span>
+            </div>
+            <div class="add-row">
+                <input type="text" class="add-input" id="addMemberInput" placeholder="新しい利用者名を入力...">
+                <button class="add-btn" onclick="addMember()">追加</button>
+            </div>
+            <div class="item-list" id="membersList"></div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        let options = {{ options | tojson }};
+        let members = {{ members | tojson }};
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.classList.add('visible');
+            setTimeout(() => t.classList.remove('visible'), 2000);
+        }
+
+        // --- 選択肢の表示 ---
+        function renderList(category, listId, countId) {
+            const list = document.getElementById(listId);
+            const items = options[category];
+            document.getElementById(countId).textContent = `${items.length}件`;
+
+            list.innerHTML = items.map(item => `
+                <div class="item-row" id="row-${category}-${encodeId(item)}">
+                    <span class="item-text">${esc(item)}</span>
+                    <button class="item-btn btn-edit" onclick="startEdit('${category}', '${escAttr(item)}')">編集</button>
+                    <button class="item-btn btn-delete" onclick="deleteOption('${category}', '${escAttr(item)}')">削除</button>
+                </div>
+            `).join('');
+        }
+
+        function renderAll() {
+            renderList('activities', 'activitiesList', 'activitiesCount');
+            renderList('behaviors', 'behaviorsList', 'behaviorsCount');
+            renderList('impressions', 'impressionsList', 'impressionsCount');
+            renderMembers();
+        }
+
+        // --- 追加 ---
+        async function addOption(category, inputId) {
+            const input = document.getElementById(inputId);
+            const value = input.value.trim();
+            if (!value) return;
+
+            const res = await fetch(`/options/${category}/add`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ value }),
+            });
+            const data = await res.json();
+            if (data.success) {
+                options[category] = data.options;
+                input.value = '';
+                renderAll();
+                showToast('追加しました');
+            } else {
+                alert(data.error);
+            }
+        }
+
+        // --- 削除 ---
+        async function deleteOption(category, value) {
+            if (!confirm(`「${value}」を削除しますか？`)) return;
+
+            const res = await fetch(`/options/${category}/delete`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ value }),
+            });
+            const data = await res.json();
+            if (data.success) {
+                options[category] = data.options;
+                renderAll();
+                showToast('削除しました');
+            }
+        }
+
+        // --- 編集 ---
+        function startEdit(category, oldValue) {
+            const rowId = `row-${category}-${encodeId(oldValue)}`;
+            const row = document.getElementById(rowId);
+            if (!row) return;
+
+            row.innerHTML = `
+                <input type="text" class="item-edit-input" id="edit-input-${category}" value="${escAttr(oldValue)}">
+                <button class="item-btn btn-save" onclick="saveEdit('${category}', '${escAttr(oldValue)}')">保存</button>
+                <button class="item-btn btn-cancel" onclick="renderAll()">取消</button>
+            `;
+            const editInput = document.getElementById(`edit-input-${category}`);
+            editInput.focus();
+            editInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') { e.preventDefault(); saveEdit(category, oldValue); }
+                if (e.key === 'Escape') { renderAll(); }
+            });
+        }
+
+        async function saveEdit(category, oldValue) {
+            const input = document.getElementById(`edit-input-${category}`);
+            const newValue = input.value.trim();
+            if (!newValue) return;
+
+            const res = await fetch(`/options/${category}/edit`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ old_value: oldValue, new_value: newValue }),
+            });
+            const data = await res.json();
+            if (data.success) {
+                options[category] = data.options;
+                renderAll();
+                showToast('変更しました');
+            } else {
+                alert(data.error);
+            }
+        }
+
+        // --- 利用者管理 ---
+        function renderMembers() {
+            const list = document.getElementById('membersList');
+            document.getElementById('membersCount').textContent = `${members.length}件`;
+
+            list.innerHTML = members.map(m => `
+                <div class="item-row">
+                    <span class="item-text">${esc(m)}</span>
+                    <button class="item-btn btn-delete" onclick="deleteMember('${escAttr(m)}')">削除</button>
+                </div>
+            `).join('');
+        }
+
+        async function addMember() {
+            const input = document.getElementById('addMemberInput');
+            const name = input.value.trim();
+            if (!name) return;
+
+            const res = await fetch('/members', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name }),
+            });
+            const data = await res.json();
+            if (data.success) {
+                members = data.members;
+                input.value = '';
+                renderAll();
+                showToast('追加しました');
+            } else {
+                alert(data.error);
+            }
+        }
+
+        async function deleteMember(name) {
+            if (!confirm(`「${name}」を削除しますか？`)) return;
+            const res = await fetch('/members', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name }),
+            });
+            const data = await res.json();
+            if (data.success) {
+                members = data.members;
+                renderAll();
+                showToast('削除しました');
+            }
+        }
+
+        // --- ユーティリティ ---
+        function esc(str) {
+            const d = document.createElement('div');
+            d.textContent = str;
+            return d.innerHTML;
+        }
+
+        function escAttr(str) {
+            return str.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+        }
+
+        function encodeId(str) {
+            return btoa(unescape(encodeURIComponent(str))).replace(/[=+/]/g, '_');
+        }
+
+        // Enterキーで追加
+        ['addActivityInput', 'addBehaviorInput', 'addImpressionInput', 'addMemberInput'].forEach(id => {
+            document.getElementById(id).addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    e.target.closest('.add-row').querySelector('.add-btn').click();
+                }
+            });
+        });
+
+        // 初期表示
+        renderAll();
+    </script>
+</body>
+</html>

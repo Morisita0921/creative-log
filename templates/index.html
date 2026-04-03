@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CreativeLog - 支援記録アシスタント</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Hiragino Sans', 'Meiryo', sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 24px 0;
+            border-bottom: 1px solid #1e293b;
+            margin-bottom: 24px;
+        }
+
+        header h1 {
+            font-size: 24px;
+            color: #38bdf8;
+            margin-bottom: 4px;
+        }
+
+        header p {
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        .section {
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #38bdf8;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-title .badge {
+            background: #38bdf8;
+            color: #0f172a;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 99px;
+            font-weight: 600;
+        }
+
+        .subsection {
+            margin-bottom: 16px;
+        }
+
+        .subsection-label {
+            font-size: 13px;
+            color: #94a3b8;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .chip-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 14px;
+            border-radius: 99px;
+            font-size: 13px;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.15s;
+            border: 1px solid #334155;
+            background: #0f172a;
+            color: #94a3b8;
+        }
+
+        .chip:hover {
+            border-color: #38bdf8;
+            color: #e2e8f0;
+        }
+
+        .chip.selected {
+            background: #0c4a6e;
+            border-color: #38bdf8;
+            color: #38bdf8;
+            font-weight: 600;
+        }
+
+        .memo-input {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid #334155;
+            background: #0f172a;
+            color: #e2e8f0;
+            font-size: 14px;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 40px;
+            transition: border-color 0.15s;
+        }
+
+        .memo-input:focus {
+            outline: none;
+            border-color: #38bdf8;
+        }
+
+        .memo-input::placeholder {
+            color: #475569;
+        }
+
+        .generate-btn {
+            width: 100%;
+            padding: 16px;
+            border-radius: 12px;
+            border: none;
+            background: linear-gradient(135deg, #0284c7, #0ea5e9);
+            color: white;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 16px;
+        }
+
+        .generate-btn:hover {
+            background: linear-gradient(135deg, #0369a1, #0284c7);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
+        }
+
+        .generate-btn:active {
+            transform: translateY(0);
+        }
+
+        .generate-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .result-section {
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        .result-section.visible {
+            display: block;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .result-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #34d399;
+        }
+
+        .copy-btn {
+            padding: 8px 20px;
+            border-radius: 8px;
+            border: 1px solid #34d399;
+            background: transparent;
+            color: #34d399;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .copy-btn:hover {
+            background: #34d399;
+            color: #0f172a;
+        }
+
+        .copy-btn.copied {
+            background: #34d399;
+            color: #0f172a;
+        }
+
+        .result-text {
+            font-size: 15px;
+            line-height: 1.8;
+            color: #e2e8f0;
+            white-space: pre-wrap;
+            padding: 16px;
+            background: #0f172a;
+            border-radius: 8px;
+            border: 1px solid #334155;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #38bdf8;
+            display: none;
+        }
+
+        .loading.visible {
+            display: block;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            border: 3px solid #1e293b;
+            border-top-color: #38bdf8;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error-msg {
+            color: #f87171;
+            background: #451a1a;
+            border: 1px solid #7f1d1d;
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-size: 14px;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        .error-msg.visible {
+            display: block;
+        }
+
+        /* --- 検索付きプルダ���ン --- */
+        .combobox {
+            position: relative;
+        }
+
+        .combobox-input {
+            width: 100%;
+            padding: 10px 40px 10px 14px;
+            border-radius: 8px;
+            border: 1px solid #334155;
+            background: #0f172a;
+            color: #e2e8f0;
+            font-size: 15px;
+            font-family: inherit;
+        }
+
+        .combobox-input:focus {
+            outline: none;
+            border-color: #38bdf8;
+        }
+
+        .combobox-input::placeholder {
+            color: #475569;
+        }
+
+        .combobox-arrow {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+            pointer-events: none;
+            font-size: 12px;
+        }
+
+        .combobox-dropdown {
+            display: none;
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            right: 0;
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            max-height: 240px;
+            overflow-y: auto;
+            z-index: 100;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+        }
+
+        .combobox-dropdown.open {
+            display: block;
+        }
+
+        .combobox-option {
+            padding: 10px 14px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #e2e8f0;
+            transition: background 0.1s;
+        }
+
+        .combobox-option:hover,
+        .combobox-option.highlighted {
+            background: #0c4a6e;
+        }
+
+        .combobox-empty {
+            padding: 10px 14px;
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        /* --- 利用者管理 --- */
+        .member-manage-toggle {
+            font-size: 12px;
+            color: #64748b;
+            cursor: pointer;
+            margin-top: 8px;
+            display: inline-block;
+        }
+
+        .member-manage-toggle:hover {
+            color: #94a3b8;
+        }
+
+        .member-manage-panel {
+            display: none;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #334155;
+        }
+
+        .member-manage-panel.open {
+            display: block;
+        }
+
+        .member-add-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .member-add-input {
+            flex: 1;
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid #334155;
+            background: #0f172a;
+            color: #e2e8f0;
+            font-size: 13px;
+            font-family: inherit;
+        }
+
+        .member-add-input:focus {
+            outline: none;
+            border-color: #38bdf8;
+        }
+
+        .member-add-btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: none;
+            background: #0284c7;
+            color: white;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .member-add-btn:hover {
+            background: #0369a1;
+        }
+
+        .member-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .member-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            background: #0f172a;
+            border: 1px solid #334155;
+            font-size: 13px;
+            color: #94a3b8;
+        }
+
+        .member-tag-delete {
+            cursor: pointer;
+            color: #64748b;
+            font-size: 14px;
+            line-height: 1;
+        }
+
+        .member-tag-delete:hover {
+            color: #f87171;
+        }
+
+        .divider {
+            height: 1px;
+            background: #334155;
+            margin: 16px 0;
+        }
+
+        .reset-btn {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #334155;
+            background: transparent;
+            color: #64748b;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .reset-btn:hover {
+            border-color: #64748b;
+            color: #94a3b8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>CreativeLog</h1>
+            <p>支援記録アシスタント - メタゲーム明石</p>
+            {% if use_ai %}
+            <p style="color: #34d399; font-size: 12px; margin-top: 4px;">AI生成モード（Claude API）</p>
+            {% else %}
+            <p style="color: #f59e0b; font-size: 12px; margin-top: 4px;">テンプレート生成モード</p>
+            {% endif %}
+        </header>
+
+        <!-- 利用者名 -->
+        <div class="section">
+            <div class="section-title">利用者</div>
+            <div class="combobox" id="memberCombobox">
+                <input type="text" class="combobox-input" id="memberName"
+                       placeholder="名前を入力して検索 または 選択..."
+                       autocomplete="off">
+                <span class="combobox-arrow">▼</span>
+                <div class="combobox-dropdown" id="memberDropdown"></div>
+            </div>
+            <span class="member-manage-toggle" onclick="toggleManagePanel()">利用者を登録・管理する</span>
+            <div class="member-manage-panel" id="managePanel">
+                <div class="member-add-row">
+                    <input type="text" class="member-add-input" id="newMemberName" placeholder="新しい利用者名（例: I・M様）">
+                    <button class="member-add-btn" onclick="addMember()">追加</button>
+                </div>
+                <div class="member-list" id="memberList"></div>
+            </div>
+        </div>
+
+        <!-- 午前 -->
+        <div class="section">
+            <div class="section-title">
+                午前 <span class="badge">AM</span>
+            </div>
+            <div class="subsection">
+                <div class="subsection-label">活動内容</div>
+                <div class="chip-group" id="amActivities">
+                    {% for item in activities %}
+                    <div class="chip" data-value="{{ item }}" onclick="toggleChip(this)">{{ item }}</div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="subsection">
+                <div class="subsection-label">様子・取り組み姿勢</div>
+                <div class="chip-group" id="amBehaviors">
+                    {% for behavior in behaviors %}
+                    <div class="chip" data-value="{{ behavior }}" onclick="toggleChip(this)">{{ behavior }}</div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="subsection">
+                <div class="subsection-label">補足メモ（任意）</div>
+                <textarea class="memo-input" id="amMemo" rows="2" placeholder="気づいたことがあれば自由に入力..."></textarea>
+            </div>
+        </div>
+
+        <!-- 午後 -->
+        <div class="section">
+            <div class="section-title">
+                午後 <span class="badge">PM</span>
+            </div>
+            <div class="subsection">
+                <div class="subsection-label">活動内容</div>
+                <div class="chip-group" id="pmActivities">
+                    {% for item in activities %}
+                    <div class="chip" data-value="{{ item }}" onclick="toggleChip(this)">{{ item }}</div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="subsection">
+                <div class="subsection-label">様子・取り組み姿勢</div>
+                <div class="chip-group" id="pmBehaviors">
+                    {% for behavior in behaviors %}
+                    <div class="chip" data-value="{{ behavior }}" onclick="toggleChip(this)">{{ behavior }}</div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="subsection">
+                <div class="subsection-label">補足メモ（任意）</div>
+                <textarea class="memo-input" id="pmMemo" rows="2" placeholder="気づいたことがあれば自由に入力..."></textarea>
+            </div>
+        </div>
+
+        <!-- 全体の印象 -->
+        <div class="section">
+            <div class="section-title">全体の印象</div>
+            <div class="subsection">
+                <div class="chip-group" id="impressions">
+                    {% for impression in impressions %}
+                    <div class="chip" data-value="{{ impression }}" onclick="toggleChip(this)">{{ impression }}</div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="subsection">
+                <div class="subsection-label">その他メモ（任意）</div>
+                <textarea class="memo-input" id="generalMemo" rows="2" placeholder="特記事項があれば..."></textarea>
+            </div>
+        </div>
+
+        <!-- 生成ボタン -->
+        <button class="generate-btn" id="generateBtn" onclick="generateRecord()">
+            記録文を生成する
+        </button>
+
+        <!-- ローディング -->
+        <div class="loading" id="loading">
+            <span class="spinner"></span>記録文を生成しています...
+        </div>
+
+        <!-- エラー -->
+        <div class="error-msg" id="errorMsg"></div>
+
+        <!-- 結果 -->
+        <div class="result-section" id="resultSection">
+            <div class="result-header">
+                <div class="result-title">生成結果</div>
+                <button class="copy-btn" id="copyBtn" onclick="copyResult()">コピー</button>
+            </div>
+            <div class="result-text" id="resultText"></div>
+        </div>
+
+        <!-- リセット -->
+        <button class="reset-btn" onclick="resetForm()">入力をリセットして次の利用者へ</button>
+
+        <div style="text-align:center; margin-top:16px;">
+            <a href="/admin" style="color:#64748b; font-size:13px; text-decoration:none;">管理画面（選択肢の編集）</a>
+        </div>
+    </div>
+
+    <script>
+        // --- 利用者データ ---
+        let members = {{ members | tojson }};
+        let highlightIndex = -1;
+
+        // --- 検索付きプルダウン ---
+        const memberInput = document.getElementById('memberName');
+        const dropdown = document.getElementById('memberDropdown');
+
+        function renderDropdown(filter = '') {
+            const query = filter.toLowerCase();
+            const filtered = query
+                ? members.filter(m => m.toLowerCase().includes(query))
+                : members;
+
+            if (filtered.length === 0) {
+                dropdown.innerHTML = '<div class="combobox-empty">該当する利用者がいません</div>';
+            } else {
+                dropdown.innerHTML = filtered.map((m, i) =>
+                    `<div class="combobox-option${i === highlightIndex ? ' highlighted' : ''}"
+                          data-value="${m}"
+                          onmousedown="selectMember('${m.replace(/'/g, "\\'")}')">${m}</div>`
+                ).join('');
+            }
+        }
+
+        function openDropdown() {
+            highlightIndex = -1;
+            renderDropdown(memberInput.value);
+            dropdown.classList.add('open');
+        }
+
+        function closeDropdown() {
+            dropdown.classList.remove('open');
+            highlightIndex = -1;
+        }
+
+        function selectMember(name) {
+            memberInput.value = name;
+            closeDropdown();
+        }
+
+        memberInput.addEventListener('focus', openDropdown);
+        memberInput.addEventListener('input', () => {
+            highlightIndex = -1;
+            renderDropdown(memberInput.value);
+            if (!dropdown.classList.contains('open')) {
+                dropdown.classList.add('open');
+            }
+        });
+
+        memberInput.addEventListener('keydown', (e) => {
+            const options = dropdown.querySelectorAll('.combobox-option');
+            if (!dropdown.classList.contains('open') || options.length === 0) return;
+
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                highlightIndex = Math.min(highlightIndex + 1, options.length - 1);
+                updateHighlight(options);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                highlightIndex = Math.max(highlightIndex - 1, 0);
+                updateHighlight(options);
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                if (highlightIndex >= 0 && highlightIndex < options.length) {
+                    selectMember(options[highlightIndex].dataset.value);
+                }
+            } else if (e.key === 'Escape') {
+                closeDropdown();
+            }
+        });
+
+        function updateHighlight(options) {
+            options.forEach((o, i) => {
+                o.classList.toggle('highlighted', i === highlightIndex);
+            });
+            if (highlightIndex >= 0) {
+                options[highlightIndex].scrollIntoView({ block: 'nearest' });
+            }
+        }
+
+        // 外側クリックで閉じる
+        document.addEventListener('click', (e) => {
+            if (!document.getElementById('memberCombobox').contains(e.target)) {
+                closeDropdown();
+            }
+        });
+
+        // --- 利用者管理 ---
+        function toggleManagePanel() {
+            document.getElementById('managePanel').classList.toggle('open');
+        }
+
+        function renderMemberList() {
+            const list = document.getElementById('memberList');
+            if (members.length === 0) {
+                list.innerHTML = '<span style="color:#64748b;font-size:13px;">まだ登録されていません</span>';
+                return;
+            }
+            list.innerHTML = members.map(m =>
+                `<div class="member-tag">
+                    ${m}
+                    <span class="member-tag-delete" onclick="deleteMember('${m.replace(/'/g, "\\'")}')">&times;</span>
+                </div>`
+            ).join('');
+        }
+
+        async function addMember() {
+            const input = document.getElementById('newMemberName');
+            const name = input.value.trim();
+            if (!name) return;
+
+            const res = await fetch('/members', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name }),
+            });
+            const data = await res.json();
+            if (data.success) {
+                members = data.members;
+                input.value = '';
+                renderMemberList();
+            } else {
+                alert(data.error || '追加に失敗しました');
+            }
+        }
+
+        async function deleteMember(name) {
+            if (!confirm(`「${name}」を削除しますか？`)) return;
+            const res = await fetch('/members', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name }),
+            });
+            const data = await res.json();
+            if (data.success) {
+                members = data.members;
+                renderMemberList();
+            }
+        }
+
+        // Enter キーで追加
+        document.getElementById('newMemberName').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') { e.preventDefault(); addMember(); }
+        });
+
+        // 初期表示
+        renderMemberList();
+
+        // --- チップ選択 ---
+        function toggleChip(el) {
+            el.classList.toggle('selected');
+        }
+
+        function getSelectedValues(containerId) {
+            const chips = document.querySelectorAll(`#${containerId} .chip.selected`);
+            return Array.from(chips).map(c => c.dataset.value);
+        }
+
+        // --- 記録文生成 ---
+        async function generateRecord() {
+            const btn = document.getElementById('generateBtn');
+            const loading = document.getElementById('loading');
+            const errorMsg = document.getElementById('errorMsg');
+            const resultSection = document.getElementById('resultSection');
+
+            btn.disabled = true;
+            loading.classList.add('visible');
+            errorMsg.classList.remove('visible');
+            resultSection.classList.remove('visible');
+
+            const payload = {
+                member_name: memberInput.value,
+                am_activities: getSelectedValues('amActivities'),
+                am_behaviors: getSelectedValues('amBehaviors'),
+                am_memo: document.getElementById('amMemo').value,
+                pm_activities: getSelectedValues('pmActivities'),
+                pm_behaviors: getSelectedValues('pmBehaviors'),
+                pm_memo: document.getElementById('pmMemo').value,
+                impressions: getSelectedValues('impressions'),
+                general_memo: document.getElementById('generalMemo').value,
+            };
+
+            try {
+                const res = await fetch('/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    document.getElementById('resultText').textContent = data.text;
+                    resultSection.classList.add('visible');
+                } else {
+                    errorMsg.textContent = 'エラー: ' + (data.error || '生成に失敗しました');
+                    errorMsg.classList.add('visible');
+                }
+            } catch (e) {
+                errorMsg.textContent = 'エラー: サーバーに接続できません';
+                errorMsg.classList.add('visible');
+            } finally {
+                btn.disabled = false;
+                loading.classList.remove('visible');
+            }
+        }
+
+        // --- コピー ---
+        function copyResult() {
+            const fullText = document.getElementById('resultText').textContent;
+
+            navigator.clipboard.writeText(fullText).then(() => {
+                const btn = document.getElementById('copyBtn');
+                btn.textContent = 'コピーしました';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.textContent = 'コピー';
+                    btn.classList.remove('copied');
+                }, 2000);
+            });
+        }
+
+        // --- リセット ---
+        function resetForm() {
+            memberInput.value = '';
+            document.getElementById('amMemo').value = '';
+            document.getElementById('pmMemo').value = '';
+            document.getElementById('generalMemo').value = '';
+            document.querySelectorAll('.chip.selected').forEach(c => c.classList.remove('selected'));
+            document.getElementById('resultSection').classList.remove('visible');
+            document.getElementById('errorMsg').classList.remove('visible');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
