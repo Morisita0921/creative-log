@@ -7,6 +7,8 @@ import os
 import sys
 import json
 import random
+import urllib.request
+import urllib.error
 from pathlib import Path
 from flask import Flask, render_template, request, jsonify
 
@@ -104,11 +106,31 @@ def save_options(options):
     _save_json(OPTIONS_FILE, options)
 
 
-# --- AI生成モード ---
-USE_AI = bool(os.environ.get("ANTHROPIC_API_KEY"))
-if USE_AI:
-    from anthropic import Anthropic
-    client = Anthropic()
+# --- AI生成モード（Gemini API：無料枠で利用可能） ---
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
+USE_AI = bool(GEMINI_API_KEY)
+GEMINI_MODEL = "gemini-2.0-flash"
+GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent"
+
+
+def _call_gemini(system_prompt, user_message):
+    """Gemini APIを呼び出して応答テキストを返す"""
+    payload = json.dumps({
+        "system_instruction": {"parts": [{"text": system_prompt}]},
+        "contents": [{"parts": [{"text": user_message}]}],
+        "generationConfig": {"maxOutputTokens": 500, "temperature": 0.7},
+    }).encode("utf-8")
+
+    req = urllib.request.Request(
+        f"{GEMINI_URL}?key={GEMINI_API_KEY}",
+        data=payload,
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+    with urllib.request.urlopen(req, timeout=30) as resp:
+        result = json.loads(resp.read().decode("utf-8"))
+
+    return result["candidates"][0]["content"]["parts"][0]["text"]
 
 
 # --- テンプレート生成エンジン ---
@@ -216,7 +238,7 @@ SYSTEM_PROMPT = """あなたはB型就労支援施設「メタゲーム明石」
 
 
 def generate_ai(data):
-    """Claude APIで自然な記録文を生成する"""
+    """Gemini APIで自然な記録文を生成する"""
     member_name = data.get("member_name", "").strip()
     am_activities = data.get("am_activities", [])
     am_behaviors = data.get("am_behaviors", [])
@@ -241,13 +263,7 @@ def generate_ai(data):
 
 記録文のみを出力してください。前置きや説明は不要です。"""
 
-    response = client.messages.create(
-        model="claude-haiku-4-5-20251001",
-        max_tokens=500,
-        system=SYSTEM_PROMPT,
-        messages=[{"role": "user", "content": user_message}],
-    )
-    return response.content[0].text
+    return _call_gemini(SYSTEM_PROMPT, user_message)
 
 
 # =====================
@@ -413,13 +429,10 @@ def check_text():
         return jsonify({"success": False, "error": "校正するテキストがありません"}), 400
 
     try:
-        response = client.messages.create(
-            model="claude-haiku-4-5-20251001",
-            max_tokens=500,
-            system=CHECK_SYSTEM_PROMPT,
-            messages=[{"role": "user", "content": f"以下の支援記録文を校正してください。\n\n{text}"}],
+        checked_text = _call_gemini(
+            CHECK_SYSTEM_PROMPT,
+            f"以下の支援記録文を校正してください。\n\n{text}",
         )
-        checked_text = response.content[0].text
         return jsonify({"success": True, "text": checked_text})
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
@@ -435,10 +448,10 @@ if __name__ == "__main__":
     print("  メタゲーム明石")
     print("=" * 50)
     if USE_AI:
-        print("  モード: AI生成（Claude API）")
+        print("  モード: AI生成（Gemini API・無料）")
     else:
         print("  モード: テンプレート生成（APIキー不要）")
-        print("  ※ ANTHROPIC_API_KEY を設定するとAI生成に切り替わります")
+        print("  ※ GEMINI_API_KEY を設定するとAI生成に切り替わります")
     print()
     print("  記録入力: http://localhost:5000")
     print("  管理画面: http://localhost:5000/admin")
