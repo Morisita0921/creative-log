@@ -212,6 +212,44 @@
             color: #0a0a0a;
         }
 
+        .ai-check-btn {
+            padding: 8px 20px;
+            border-radius: 8px;
+            border: 1px solid #f59e0b;
+            background: transparent;
+            color: #f59e0b;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .ai-check-btn:hover {
+            background: #f59e0b;
+            color: #0a0a0a;
+        }
+
+        .ai-check-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .ai-check-btn.checked {
+            border-color: #22c55e;
+            color: #22c55e;
+        }
+
+        .check-label {
+            font-size: 11px;
+            color: #22c55e;
+            margin-top: 8px;
+            display: none;
+        }
+
+        .check-label.visible {
+            display: block;
+        }
+
         .result-text {
             font-size: 15px;
             line-height: 1.8;
@@ -572,9 +610,15 @@
         <div class="result-section" id="resultSection">
             <div class="result-header">
                 <div class="result-title">生成結果</div>
-                <button class="copy-btn" id="copyBtn" onclick="copyResult()">コピー</button>
+                <div style="display:flex; gap:8px; align-items:center;">
+                    {% if use_ai %}
+                    <button class="ai-check-btn" id="aiCheckBtn" onclick="aiCheck()">AIチェック</button>
+                    {% endif %}
+                    <button class="copy-btn" id="copyBtn" onclick="copyResult()">コピー</button>
+                </div>
             </div>
             <div class="result-text" id="resultText"></div>
+            <div class="check-label" id="checkLabel">AI校正済み</div>
         </div>
 
         <!-- リセット -->
@@ -756,6 +800,15 @@
             loading.classList.add('visible');
             errorMsg.classList.remove('visible');
             resultSection.classList.remove('visible');
+            // AIチェック状態リセット
+            const aiBtn = document.getElementById('aiCheckBtn');
+            if (aiBtn) {
+                aiBtn.textContent = 'AIチェック';
+                aiBtn.classList.remove('checked');
+                aiBtn.disabled = false;
+            }
+            const checkLbl = document.getElementById('checkLabel');
+            if (checkLbl) checkLbl.classList.remove('visible');
 
             const payload = {
                 member_name: memberInput.value,
@@ -793,6 +846,41 @@
             }
         }
 
+        // --- AIチェック ---
+        async function aiCheck() {
+            const btn = document.getElementById('aiCheckBtn');
+            const resultText = document.getElementById('resultText');
+            const checkLabel = document.getElementById('checkLabel');
+            const originalText = resultText.textContent;
+
+            btn.disabled = true;
+            btn.textContent = 'チェック中...';
+
+            try {
+                const res = await fetch('/check', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: originalText }),
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    resultText.textContent = data.text;
+                    btn.textContent = 'チェック済';
+                    btn.classList.add('checked');
+                    checkLabel.classList.add('visible');
+                } else {
+                    alert('AIチェックエラー: ' + (data.error || '失敗しました'));
+                    btn.textContent = 'AIチェック';
+                    btn.disabled = false;
+                }
+            } catch (e) {
+                alert('AIチェックエラー: サーバーに接続できません');
+                btn.textContent = 'AIチェック';
+                btn.disabled = false;
+            }
+        }
+
         // --- コピー ---
         function copyResult() {
             const fullText = document.getElementById('resultText').textContent;
@@ -817,6 +905,15 @@
             document.querySelectorAll('.chip.selected').forEach(c => c.classList.remove('selected'));
             document.getElementById('resultSection').classList.remove('visible');
             document.getElementById('errorMsg').classList.remove('visible');
+            // AIチェック状態リセット
+            const aiBtn = document.getElementById('aiCheckBtn');
+            if (aiBtn) {
+                aiBtn.textContent = 'AIチェック';
+                aiBtn.classList.remove('checked');
+                aiBtn.disabled = false;
+            }
+            const checkLabel = document.getElementById('checkLabel');
+            if (checkLabel) checkLabel.classList.remove('visible');
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     </script>

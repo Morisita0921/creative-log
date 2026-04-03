@@ -131,7 +131,7 @@ ACTIVITY_OPENERS_PM = [
 GENERIC_CONNECTORS = [
     "{text}。",
     "{text}様子が見られた。",
-    "{text}とのこと。",
+    "{text}場面が見られた。",
 ]
 
 
@@ -377,6 +377,50 @@ def generate():
         else:
             text = generate_template(data)
         return jsonify({"success": True, "text": text})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+# --- AIチェック API（クラウド版のみ） ---
+
+CHECK_SYSTEM_PROMPT = """あなたはB型就労支援施設「メタゲーム明石」の支援記録を校正するアシスタントです。
+入力された支援記録文を確認し、より自然で適切な文章に校正してください。
+
+## 校正ルール
+- 文法的な不自然さを修正する
+- 「。。」のような重複表現を除去する
+- 記録体（「〜された」「〜していた」「〜の様子」）で統一する
+- 主語と述語の対応を確認する
+- 同じ表現の繰り返しを避ける（言い換える）
+- 文章の流れが自然になるようにする
+- 意味を変えないこと（情報の追加・削除はしない）
+- 「利用者対応　○○様」のヘッダー行はそのまま残す
+
+## 出力形式
+校正後の文章のみを出力してください。前置きや説明は不要です。
+修正がない場合はそのまま返してください。"""
+
+
+@app.route("/check", methods=["POST"])
+def check_text():
+    """生成された記録文をAIで校正する（APIキーがある場合のみ）"""
+    if not USE_AI:
+        return jsonify({"success": False, "error": "AI機能は利用できません"}), 400
+
+    data = request.json
+    text = data.get("text", "").strip()
+    if not text:
+        return jsonify({"success": False, "error": "校正するテキストがありません"}), 400
+
+    try:
+        response = client.messages.create(
+            model="claude-haiku-4-5-20251001",
+            max_tokens=500,
+            system=CHECK_SYSTEM_PROMPT,
+            messages=[{"role": "user", "content": f"以下の支援記録文を校正してください。\n\n{text}"}],
+        )
+        checked_text = response.content[0].text
+        return jsonify({"success": True, "text": checked_text})
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
