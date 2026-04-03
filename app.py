@@ -115,9 +115,11 @@ GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_M
 
 def _call_gemini(system_prompt, user_message):
     """Gemini APIを呼び出して応答テキストを返す"""
+    # システムプロンプトをユーザーメッセージに統合（互換性を最大化）
+    combined_message = f"""【指示】\n{system_prompt}\n\n【入力】\n{user_message}"""
+
     payload = json.dumps({
-        "system_instruction": {"parts": [{"text": system_prompt}]},
-        "contents": [{"parts": [{"text": user_message}]}],
+        "contents": [{"parts": [{"text": combined_message}]}],
         "generationConfig": {"maxOutputTokens": 500, "temperature": 0.7},
     }).encode("utf-8")
 
@@ -127,10 +129,13 @@ def _call_gemini(system_prompt, user_message):
         headers={"Content-Type": "application/json"},
         method="POST",
     )
-    with urllib.request.urlopen(req, timeout=30) as resp:
-        result = json.loads(resp.read().decode("utf-8"))
-
-    return result["candidates"][0]["content"]["parts"][0]["text"]
+    try:
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            result = json.loads(resp.read().decode("utf-8"))
+        return result["candidates"][0]["content"]["parts"][0]["text"]
+    except urllib.error.HTTPError as e:
+        error_body = e.read().decode("utf-8")
+        raise Exception(f"Gemini API エラー ({e.code}): {error_body}")
 
 
 # --- テンプレート生成エンジン ---
