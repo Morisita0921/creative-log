@@ -4,15 +4,24 @@ MoriEdit CreativeLog — 支援記録アシスタント
 """
 
 import os
+import sys
 import json
 import random
 from pathlib import Path
 from flask import Flask, render_template, request, jsonify
 
-app = Flask(__name__)
+# EXE化した場合のパス解決
+if getattr(sys, 'frozen', False):
+    _BASE = Path(sys._MEIPASS)
+    _EXE_DIR = Path(sys.executable).parent
+else:
+    _BASE = Path(__file__).parent
+    _EXE_DIR = _BASE
 
-# --- データの永続化 ---
-DATA_DIR = Path(__file__).parent / "data"
+app = Flask(__name__, template_folder=str(_BASE / "templates"))
+
+# --- データの永続化（EXEの場合はEXEと同じフォルダに保存） ---
+DATA_DIR = _EXE_DIR / "data"
 MEMBERS_FILE = DATA_DIR / "members.json"
 OPTIONS_FILE = DATA_DIR / "options.json"
 

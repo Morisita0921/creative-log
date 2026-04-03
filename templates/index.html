@@ -13,7 +13,7 @@
 
         body {
             font-family: 'Segoe UI', 'Hiragino Sans', 'Meiryo', sans-serif;
-            background: #0f172a;
+            background: #0a0a0a;
             color: #e2e8f0;
             min-height: 100vh;
         }
@@ -27,23 +27,23 @@
         header {
             text-align: center;
             padding: 24px 0;
-            border-bottom: 1px solid #1e293b;
+            border-bottom: 1px solid #161616;
             margin-bottom: 24px;
         }
 
         header h1 {
             font-size: 24px;
-            color: #38bdf8;
+            color: #ff0b3c;
             margin-bottom: 4px;
         }
 
         header p {
             font-size: 14px;
-            color: #64748b;
+            color: #666666;
         }
 
         .section {
-            background: #1e293b;
+            background: #161616;
             border-radius: 12px;
             padding: 20px;
             margin-bottom: 16px;
@@ -52,7 +52,7 @@
         .section-title {
             font-size: 16px;
             font-weight: 700;
-            color: #38bdf8;
+            color: #ff0b3c;
             margin-bottom: 12px;
             display: flex;
             align-items: center;
@@ -60,8 +60,8 @@
         }
 
         .section-title .badge {
-            background: #38bdf8;
-            color: #0f172a;
+            background: #ff0b3c;
+            color: #0a0a0a;
             font-size: 11px;
             padding: 2px 8px;
             border-radius: 99px;
@@ -74,7 +74,7 @@
 
         .subsection-label {
             font-size: 13px;
-            color: #94a3b8;
+            color: #9a9da2;
             margin-bottom: 8px;
             font-weight: 600;
         }
@@ -94,20 +94,20 @@
             cursor: pointer;
             user-select: none;
             transition: all 0.15s;
-            border: 1px solid #334155;
-            background: #0f172a;
-            color: #94a3b8;
+            border: 1px solid #2a2a2a;
+            background: #0a0a0a;
+            color: #9a9da2;
         }
 
         .chip:hover {
-            border-color: #38bdf8;
+            border-color: #ff0b3c;
             color: #e2e8f0;
         }
 
         .chip.selected {
-            background: #0c4a6e;
-            border-color: #38bdf8;
-            color: #38bdf8;
+            background: #2a0a10;
+            border-color: #ff0b3c;
+            color: #ff0b3c;
             font-weight: 600;
         }
 
@@ -115,8 +115,8 @@
             width: 100%;
             padding: 10px 14px;
             border-radius: 8px;
-            border: 1px solid #334155;
-            background: #0f172a;
+            border: 1px solid #2a2a2a;
+            background: #0a0a0a;
             color: #e2e8f0;
             font-size: 14px;
             font-family: inherit;
@@ -127,11 +127,11 @@
 
         .memo-input:focus {
             outline: none;
-            border-color: #38bdf8;
+            border-color: #ff0b3c;
         }
 
         .memo-input::placeholder {
-            color: #475569;
+            color: #555555;
         }
 
         .generate-btn {
@@ -139,7 +139,7 @@
             padding: 16px;
             border-radius: 12px;
             border: none;
-            background: linear-gradient(135deg, #0284c7, #0ea5e9);
+            background: #ff0b3c;
             color: white;
             font-size: 16px;
             font-weight: 700;
@@ -149,9 +149,9 @@
         }
 
         .generate-btn:hover {
-            background: linear-gradient(135deg, #0369a1, #0284c7);
+            background: #d4092f;
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
+            box-shadow: 0 4px 12px rgba(255, 11, 60, 0.25);
         }
 
         .generate-btn:active {
@@ -166,7 +166,7 @@
         }
 
         .result-section {
-            background: #1e293b;
+            background: #161616;
             border-radius: 12px;
             padding: 20px;
             margin-bottom: 16px;
@@ -187,15 +187,15 @@
         .result-title {
             font-size: 16px;
             font-weight: 700;
-            color: #34d399;
+            color: #00ffff;
         }
 
         .copy-btn {
             padding: 8px 20px;
             border-radius: 8px;
-            border: 1px solid #34d399;
+            border: 1px solid #00ffff;
             background: transparent;
-            color: #34d399;
+            color: #00ffff;
             font-size: 13px;
             font-weight: 600;
             cursor: pointer;
@@ -203,13 +203,13 @@
         }
 
         .copy-btn:hover {
-            background: #34d399;
-            color: #0f172a;
+            background: #00ffff;
+            color: #0a0a0a;
         }
 
         .copy-btn.copied {
-            background: #34d399;
-            color: #0f172a;
+            background: #00ffff;
+            color: #0a0a0a;
         }
 
         .result-text {
@@ -218,15 +218,15 @@
             color: #e2e8f0;
             white-space: pre-wrap;
             padding: 16px;
-            background: #0f172a;
+            background: #0a0a0a;
             border-radius: 8px;
-            border: 1px solid #334155;
+            border: 1px solid #2a2a2a;
         }
 
         .loading {
             text-align: center;
             padding: 20px;
-            color: #38bdf8;
+            color: #ff0b3c;
             display: none;
         }
 
@@ -238,8 +238,8 @@
             display: inline-block;
             width: 24px;
             height: 24px;
-            border: 3px solid #1e293b;
-            border-top-color: #38bdf8;
+            border: 3px solid #161616;
+            border-top-color: #ff0b3c;
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
             margin-right: 8px;
@@ -274,8 +274,8 @@
             width: 100%;
             padding: 10px 40px 10px 14px;
             border-radius: 8px;
-            border: 1px solid #334155;
-            background: #0f172a;
+            border: 1px solid #2a2a2a;
+            background: #0a0a0a;
             color: #e2e8f0;
             font-size: 15px;
             font-family: inherit;
@@ -283,11 +283,11 @@
 
         .combobox-input:focus {
             outline: none;
-            border-color: #38bdf8;
+            border-color: #ff0b3c;
         }
 
         .combobox-input::placeholder {
-            color: #475569;
+            color: #555555;
         }
 
         .combobox-arrow {
@@ -295,7 +295,7 @@
             right: 12px;
             top: 50%;
             transform: translateY(-50%);
-            color: #64748b;
+            color: #666666;
             pointer-events: none;
             font-size: 12px;
         }
@@ -306,8 +306,8 @@
             top: calc(100% + 4px);
             left: 0;
             right: 0;
-            background: #1e293b;
-            border: 1px solid #334155;
+            background: #161616;
+            border: 1px solid #2a2a2a;
             border-radius: 8px;
             max-height: 240px;
             overflow-y: auto;
@@ -329,33 +329,33 @@
 
         .combobox-option:hover,
         .combobox-option.highlighted {
-            background: #0c4a6e;
+            background: #2a0a10;
         }
 
         .combobox-empty {
             padding: 10px 14px;
-            color: #64748b;
+            color: #666666;
             font-size: 14px;
         }
 
         /* --- 利用者管理 --- */
         .member-manage-toggle {
             font-size: 12px;
-            color: #64748b;
+            color: #666666;
             cursor: pointer;
             margin-top: 8px;
             display: inline-block;
         }
 
         .member-manage-toggle:hover {
-            color: #94a3b8;
+            color: #9a9da2;
         }
 
         .member-manage-panel {
             display: none;
             margin-top: 12px;
             padding-top: 12px;
-            border-top: 1px solid #334155;
+            border-top: 1px solid #2a2a2a;
         }
 
         .member-manage-panel.open {
@@ -372,8 +372,8 @@
             flex: 1;
             padding: 8px 12px;
             border-radius: 6px;
-            border: 1px solid #334155;
-            background: #0f172a;
+            border: 1px solid #2a2a2a;
+            background: #0a0a0a;
             color: #e2e8f0;
             font-size: 13px;
             font-family: inherit;
@@ -381,7 +381,7 @@
 
         .member-add-input:focus {
             outline: none;
-            border-color: #38bdf8;
+            border-color: #ff0b3c;
         }
 
         .member-add-btn {
@@ -412,15 +412,15 @@
             gap: 6px;
             padding: 4px 10px;
             border-radius: 6px;
-            background: #0f172a;
-            border: 1px solid #334155;
+            background: #0a0a0a;
+            border: 1px solid #2a2a2a;
             font-size: 13px;
-            color: #94a3b8;
+            color: #9a9da2;
         }
 
         .member-tag-delete {
             cursor: pointer;
-            color: #64748b;
+            color: #666666;
             font-size: 14px;
             line-height: 1;
         }
@@ -431,7 +431,7 @@
 
         .divider {
             height: 1px;
-            background: #334155;
+            background: #2a2a2a;
             margin: 16px 0;
         }
 
@@ -439,17 +439,17 @@
             width: 100%;
             padding: 12px;
             border-radius: 8px;
-            border: 1px solid #334155;
+            border: 1px solid #2a2a2a;
             background: transparent;
-            color: #64748b;
+            color: #666666;
             font-size: 14px;
             cursor: pointer;
             transition: all 0.15s;
         }
 
         .reset-btn:hover {
-            border-color: #64748b;
-            color: #94a3b8;
+            border-color: #666666;
+            color: #9a9da2;
         }
     </style>
 </head>
@@ -459,7 +459,7 @@
             <h1>CreativeLog</h1>
             <p>支援記録アシスタント - メタゲーム明石</p>
             {% if use_ai %}
-            <p style="color: #34d399; font-size: 12px; margin-top: 4px;">AI生成モード（Claude API）</p>
+            <p style="color: #00ffff; font-size: 12px; margin-top: 4px;">AI生成モード（Claude API）</p>
             {% else %}
             <p style="color: #f59e0b; font-size: 12px; margin-top: 4px;">テンプレート生成モード</p>
             {% endif %}
@@ -581,7 +581,7 @@
         <button class="reset-btn" onclick="resetForm()">入力をリセットして次の利用者へ</button>
 
         <div style="text-align:center; margin-top:16px;">
-            <a href="/admin" style="color:#64748b; font-size:13px; text-decoration:none;">管理画面（選択肢の編集）</a>
+            <a href="/admin" style="color:#666666; font-size:13px; text-decoration:none;">管理画面（選択肢の編集）</a>
         </div>
     </div>
 
@@ -682,7 +682,7 @@
         function renderMemberList() {
             const list = document.getElementById('memberList');
             if (members.length === 0) {
-                list.innerHTML = '<span style="color:#64748b;font-size:13px;">まだ登録されていません</span>';
+                list.innerHTML = '<span style="color:#666666;font-size:13px;">まだ登録されていません</span>';
                 return;
             }
             list.innerHTML = members.map(m =>
