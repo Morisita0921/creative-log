@@ -131,6 +131,7 @@ def _call_ai(system_prompt, user_message):
         headers={
             "Content-Type": "application/json",
             "Authorization": f"Bearer {GROQ_API_KEY}",
+            "User-Agent": "CreativeLog/1.0",
         },
         method="POST",
     )
