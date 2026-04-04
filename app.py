@@ -26,6 +26,7 @@ app = Flask(__name__, template_folder=str(_BASE / "templates"))
 DATA_DIR = _EXE_DIR / "data"
 MEMBERS_FILE = DATA_DIR / "members.json"
 OPTIONS_FILE = DATA_DIR / "options.json"
+PROMPT_FILE = DATA_DIR / "prompt.json"
 
 # デフォルトの選択肢（初回起動時に options.json へ書き出す）
 DEFAULT_OPTIONS = {
@@ -110,6 +111,32 @@ def load_members():
 
 def save_members(members):
     _save_json(MEMBERS_FILE, members)
+
+
+DEFAULT_CHECK_PROMPT = """あなたはB型就労支援施設「メタゲーム明石」の支援記録を校正するアシスタントです。
+入力された支援記録文を確認し、より自然で適切な文章に校正してください。
+
+## 校正ルール
+- 文法的な不自然さを修正する
+- 「。。」のような重複表現を除去する
+- 記録体（「〜された」「〜していた」「〜の様子」）で統一する
+- 主語と述語の対応を確認する
+- 同じ表現の繰り返しを避ける（言い換える）
+- 文章の流れが自然になるようにする
+- 意味を変えないこと（情報の追加・削除はしない）
+- 「利用者対応　○○様」のヘッダー行はそのまま残す
+
+## 出力形式
+校正後の文章のみを出力してください。前置きや説明は不要です。
+修正がない場合はそのまま返してください。"""
+
+
+def load_check_prompt():
+    return _load_json(PROMPT_FILE, {"prompt": DEFAULT_CHECK_PROMPT}).get("prompt", DEFAULT_CHECK_PROMPT)
+
+
+def save_check_prompt(prompt):
+    _save_json(PROMPT_FILE, {"prompt": prompt})
 
 
 def load_options():
@@ -429,6 +456,29 @@ def edit_option(category):
     return jsonify({"success": True, "options": options[category]})
 
 
+# --- プロンプト API ---
+
+@app.route("/prompt", methods=["GET"])
+def get_prompt():
+    return jsonify({"success": True, "prompt": load_check_prompt()})
+
+
+@app.route("/prompt", methods=["POST"])
+def update_prompt():
+    data = request.json
+    prompt = data.get("prompt", "").strip()
+    if not prompt:
+        return jsonify({"success": False, "error": "プロンプトを入力してください"}), 400
+    save_check_prompt(prompt)
+    return jsonify({"success": True})
+
+
+@app.route("/prompt/reset", methods=["POST"])
+def reset_prompt():
+    save_check_prompt(DEFAULT_CHECK_PROMPT)
+    return jsonify({"success": True, "prompt": DEFAULT_CHECK_PROMPT})
+
+
 # --- 生成 API ---
 
 @app.route("/generate", methods=["POST"])
@@ -442,23 +492,6 @@ def generate():
 
 
 # --- AIチェック API（クラウド版のみ） ---
-
-CHECK_SYSTEM_PROMPT = """あなたはB型就労支援施設「メタゲーム明石」の支援記録を校正するアシスタントです。
-入力された支援記録文を確認し、より自然で適切な文章に校正してください。
-
-## 校正ルール
-- 文法的な不自然さを修正する
-- 「。。」のような重複表現を除去する
-- 記録体（「〜された」「〜していた」「〜の様子」）で統一する
-- 主語と述語の対応を確認する
-- 同じ表現の繰り返しを避ける（言い換える）
-- 文章の流れが自然になるようにする
-- 意味を変えないこと（情報の追加・削除はしない）
-- 「利用者対応　○○様」のヘッダー行はそのまま残す
-
-## 出力形式
-校正後の文章のみを出力してください。前置きや説明は不要です。
-修正がない場合はそのまま返してください。"""
 
 
 @app.route("/check", methods=["POST"])
@@ -474,7 +507,7 @@ def check_text():
 
     try:
         checked_text = _call_ai(
-            CHECK_SYSTEM_PROMPT,
+            load_check_prompt(),
             f"以下の支援記録文を校正してください。\n\n{text}",
         )
         return jsonify({"success": True, "text": checked_text})

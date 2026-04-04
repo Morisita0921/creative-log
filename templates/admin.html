@@ -271,6 +271,26 @@
             </div>
             <div class="item-list" id="membersList"></div>
         </div>
+
+        <!-- AIチェック プロンプト設定 -->
+        <div class="section">
+            <div class="section-title">AIチェック プロンプト設定</div>
+            <p style="font-size:12px; color:#9a9da2; margin-bottom:12px;">
+                AIチェック時にAIへ送る指示文を編集できます。記録文の校正ルールやトーンを自由にカスタマイズしてください。
+            </p>
+            <textarea id="promptEditor" style="
+                width:100%; min-height:250px; padding:12px; border-radius:8px;
+                border:1px solid #2a2a2a; background:#0a0a0a; color:#e2e8f0;
+                font-size:13px; font-family:inherit; resize:vertical; line-height:1.7;
+            " placeholder="プロンプトを入力..."></textarea>
+            <div style="display:flex; gap:8px; margin-top:12px;">
+                <button class="add-btn" onclick="savePrompt()">保存</button>
+                <button style="
+                    padding:8px 16px; border-radius:6px; border:1px solid #2a2a2a;
+                    background:transparent; color:#9a9da2; font-size:13px; cursor:pointer;
+                " onclick="resetPrompt()">デフォルトに戻す</button>
+            </div>
+        </div>
     </div>
 
     <div class="toast" id="toast"></div>
@@ -461,8 +481,40 @@
             });
         });
 
+        // --- プロンプト ---
+        async function loadPrompt() {
+            const res = await fetch('/prompt');
+            const data = await res.json();
+            if (data.success) {
+                document.getElementById('promptEditor').value = data.prompt;
+            }
+        }
+
+        async function savePrompt() {
+            const prompt = document.getElementById('promptEditor').value.trim();
+            if (!prompt) { showToast('プロンプトを入力してください'); return; }
+            const res = await fetch('/prompt', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt }),
+            });
+            const data = await res.json();
+            if (data.success) showToast('プロンプトを保存しました');
+        }
+
+        async function resetPrompt() {
+            if (!confirm('プロンプトをデフォルトに戻しますか？')) return;
+            const res = await fetch('/prompt/reset', { method: 'POST' });
+            const data = await res.json();
+            if (data.success) {
+                document.getElementById('promptEditor').value = data.prompt;
+                showToast('デフォルトに戻しました');
+            }
+        }
+
         // 初期表示
         renderAll();
+        loadPrompt();
     </script>
 </body>
 </html>
