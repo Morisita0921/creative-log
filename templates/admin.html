@@ -499,7 +499,7 @@
                 body: JSON.stringify({ prompt }),
             });
             const data = await res.json();
-            if (data.success) showToast('プロンプトを保存しました');
+            if (data.success) showToast('プロンプトを保存しました（サーバー再起動まで有効）');
         }
 
         async function resetPrompt() {
