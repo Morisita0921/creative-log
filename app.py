@@ -113,7 +113,12 @@ def save_members(members):
 
 
 def load_options():
-    return _load_json(OPTIONS_FILE, DEFAULT_OPTIONS)
+    options = _load_json(OPTIONS_FILE, DEFAULT_OPTIONS)
+    # 新カテゴリが追加された場合、デフォルト値で補完
+    for key, default_val in DEFAULT_OPTIONS.items():
+        if key not in options:
+            options[key] = default_val
+    return options
 
 
 def save_options(options):
