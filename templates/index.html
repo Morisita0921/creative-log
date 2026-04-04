@@ -543,16 +543,16 @@
                 </div>
             </div>
             <div class="subsection">
-                <div class="subsection-label">補足メモ（任意）</div>
-                <textarea class="memo-input" id="amMemo" rows="2" placeholder="気づいたことがあれば自由に入力..."></textarea>
-            </div>
-            <div class="subsection">
                 <div class="subsection-label">次回以降のアクション</div>
                 <div class="chip-group" id="amNextActions">
                     {% for action in next_actions %}
                     <div class="chip" data-value="{{ action }}" onclick="toggleChip(this)">{{ action }}</div>
                     {% endfor %}
                 </div>
+            </div>
+            <div class="subsection">
+                <div class="subsection-label">補足メモ（任意）</div>
+                <textarea class="memo-input" id="amMemo" rows="2" placeholder="気づいたことがあれば自由に入力..."></textarea>
             </div>
         </div>
 
@@ -578,16 +578,16 @@
                 </div>
             </div>
             <div class="subsection">
-                <div class="subsection-label">補足メモ（任意）</div>
-                <textarea class="memo-input" id="pmMemo" rows="2" placeholder="気づいたことがあれば自由に入力..."></textarea>
-            </div>
-            <div class="subsection">
                 <div class="subsection-label">次回以降のアクション</div>
                 <div class="chip-group" id="pmNextActions">
                     {% for action in next_actions %}
                     <div class="chip" data-value="{{ action }}" onclick="toggleChip(this)">{{ action }}</div>
                     {% endfor %}
                 </div>
+            </div>
+            <div class="subsection">
+                <div class="subsection-label">補足メモ（任意）</div>
+                <textarea class="memo-input" id="pmMemo" rows="2" placeholder="気づいたことがあれば自由に入力..."></textarea>
             </div>
         </div>
 
