@@ -246,6 +246,19 @@
             <div class="item-list" id="impressionsList"></div>
         </div>
 
+        <!-- 次回以降のアクション -->
+        <div class="section">
+            <div class="section-title">
+                次回以降のアクション
+                <span class="item-count" id="next_actionsCount"></span>
+            </div>
+            <div class="add-row">
+                <input type="text" class="add-input" id="addNextActionInput" placeholder="新しいアクションを入力...">
+                <button class="add-btn" onclick="addOption('next_actions', 'addNextActionInput')">追加</button>
+            </div>
+            <div class="item-list" id="next_actionsList"></div>
+        </div>
+
         <!-- 利用者管理 -->
         <div class="section">
             <div class="section-title">
@@ -292,6 +305,7 @@
             renderList('activities', 'activitiesList', 'activitiesCount');
             renderList('behaviors', 'behaviorsList', 'behaviorsCount');
             renderList('impressions', 'impressionsList', 'impressionsCount');
+            renderList('next_actions', 'next_actionsList', 'next_actionsCount');
             renderMembers();
         }
 

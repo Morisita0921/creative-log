@@ -74,6 +74,16 @@ DEFAULT_OPTIONS = {
         "意欲的に新しいことに挑戦していた",
         "前回より成長が見られた",
     ],
+    "next_actions": [
+        "引き続き同じ作業に継続して取り組んでいく",
+        "より難しい内容に挑戦していく",
+        "違った分野にもチャレンジしてもらう",
+        "作業のスピードアップを目指していく",
+        "他の利用者との協力作業を増やしていく",
+        "基本操作の定着を図っていく",
+        "本人のペースを尊重しながら進めていく",
+        "成功体験を積み重ねていけるよう支援していく",
+    ],
 }
 
 
@@ -219,6 +229,17 @@ def generate_template(data):
     if general_memo:
         parts.append(general_memo.rstrip("。") + "。")
 
+    # 次回以降のアクション
+    next_actions = data.get("next_actions", [])
+    if next_actions:
+        action_text = "・".join(a.rstrip("。") for a in next_actions)
+        prefixes = [
+            f"次回以降は{action_text}予定。",
+            f"今後は{action_text}方針。",
+            f"次回以降、{action_text}よう支援していく。",
+        ]
+        parts.append(random.choice(prefixes))
+
     result = "".join(parts)
     result = result.replace("。。", "。")
     return result
@@ -289,6 +310,7 @@ def index():
         activities=options["activities"],
         behaviors=options["behaviors"],
         impressions=options["impressions"],
+        next_actions=options.get("next_actions", []),
         members=load_members(),
         use_ai=USE_AI,
     )

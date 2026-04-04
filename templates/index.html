@@ -591,6 +591,18 @@
             </div>
         </div>
 
+        <!-- 次回以降のアクション -->
+        <div class="section">
+            <div class="section-title">次回以降のアクション</div>
+            <div class="subsection">
+                <div class="chip-group" id="nextActions">
+                    {% for action in next_actions %}
+                    <div class="chip" data-value="{{ action }}" onclick="toggleChip(this)">{{ action }}</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
         <!-- 生成ボタン -->
         <button class="generate-btn" id="generateBtn" onclick="generateRecord()">
             記録文を生成する
@@ -818,6 +830,7 @@
                 pm_memo: document.getElementById('pmMemo').value,
                 impressions: getSelectedValues('impressions'),
                 general_memo: document.getElementById('generalMemo').value,
+                next_actions: getSelectedValues('nextActions'),
             };
 
             try {
