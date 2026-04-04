@@ -83,6 +83,10 @@ DEFAULT_OPTIONS = {
         "基本操作の定着を図っていく",
         "本人のペースを尊重しながら進めていく",
         "成功体験を積み重ねていけるよう支援していく",
+        "完成に向けて仕上げ作業を進めていく",
+        "新しいツールの操作を覚えていく",
+        "クオリティの向上を目指していく",
+        "自主的に取り組める環境を整えていく",
     ],
 }
 
@@ -209,6 +213,14 @@ def generate_template(data):
         if am_memo:
             parts.append(am_memo.rstrip("。") + "。")
 
+        am_next = data.get("am_next_actions", [])
+        if am_next:
+            action_text = "、".join(a.rstrip("。") for a in am_next)
+            parts.append(random.choice([
+                f"次回以降は{action_text}予定。",
+                f"今後は{action_text}方針。",
+            ]))
+
     # 午後
     if pm_activities:
         activity_text = "・".join(pm_activities)
@@ -222,23 +234,20 @@ def generate_template(data):
         if pm_memo:
             parts.append(pm_memo.rstrip("。") + "。")
 
+        pm_next = data.get("pm_next_actions", [])
+        if pm_next:
+            action_text = "、".join(a.rstrip("。") for a in pm_next)
+            parts.append(random.choice([
+                f"次回以降は{action_text}予定。",
+                f"今後は{action_text}方針。",
+            ]))
+
     # 全体の印象
     for impression in impressions_list:
         parts.append(impression.rstrip("。") + "。")
 
     if general_memo:
         parts.append(general_memo.rstrip("。") + "。")
-
-    # 次回以降のアクション
-    next_actions = data.get("next_actions", [])
-    if next_actions:
-        action_text = "・".join(a.rstrip("。") for a in next_actions)
-        prefixes = [
-            f"次回以降は{action_text}予定。",
-            f"今後は{action_text}方針。",
-            f"次回以降、{action_text}よう支援していく。",
-        ]
-        parts.append(random.choice(prefixes))
 
     result = "".join(parts)
     result = result.replace("。。", "。")

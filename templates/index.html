@@ -546,6 +546,14 @@
                 <div class="subsection-label">補足メモ（任意）</div>
                 <textarea class="memo-input" id="amMemo" rows="2" placeholder="気づいたことがあれば自由に入力..."></textarea>
             </div>
+            <div class="subsection">
+                <div class="subsection-label">次回以降のアクション</div>
+                <div class="chip-group" id="amNextActions">
+                    {% for action in next_actions %}
+                    <div class="chip" data-value="{{ action }}" onclick="toggleChip(this)">{{ action }}</div>
+                    {% endfor %}
+                </div>
+            </div>
         </div>
 
         <!-- 午後 -->
@@ -573,6 +581,14 @@
                 <div class="subsection-label">補足メモ（任意）</div>
                 <textarea class="memo-input" id="pmMemo" rows="2" placeholder="気づいたことがあれば自由に入力..."></textarea>
             </div>
+            <div class="subsection">
+                <div class="subsection-label">次回以降のアクション</div>
+                <div class="chip-group" id="pmNextActions">
+                    {% for action in next_actions %}
+                    <div class="chip" data-value="{{ action }}" onclick="toggleChip(this)">{{ action }}</div>
+                    {% endfor %}
+                </div>
+            </div>
         </div>
 
         <!-- 全体の印象 -->
@@ -588,18 +604,6 @@
             <div class="subsection">
                 <div class="subsection-label">その他メモ（任意）</div>
                 <textarea class="memo-input" id="generalMemo" rows="2" placeholder="特記事項があれば..."></textarea>
-            </div>
-        </div>
-
-        <!-- 次回以降のアクション -->
-        <div class="section">
-            <div class="section-title">次回以降のアクション</div>
-            <div class="subsection">
-                <div class="chip-group" id="nextActions">
-                    {% for action in next_actions %}
-                    <div class="chip" data-value="{{ action }}" onclick="toggleChip(this)">{{ action }}</div>
-                    {% endfor %}
-                </div>
             </div>
         </div>
 
@@ -830,7 +834,8 @@
                 pm_memo: document.getElementById('pmMemo').value,
                 impressions: getSelectedValues('impressions'),
                 general_memo: document.getElementById('generalMemo').value,
-                next_actions: getSelectedValues('nextActions'),
+                am_next_actions: getSelectedValues('amNextActions'),
+                pm_next_actions: getSelectedValues('pmNextActions'),
             };
 
             try {
