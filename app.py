@@ -106,36 +106,41 @@ def save_options(options):
     _save_json(OPTIONS_FILE, options)
 
 
-# --- AI生成モード（Gemini API：無料枠で利用可能） ---
-GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
-USE_AI = bool(GEMINI_API_KEY)
-GEMINI_MODEL = "gemini-2.0-flash-lite"
-GEMINI_URL = f"https://generativelanguage.googleapis.com/v1/models/{GEMINI_MODEL}:generateContent"
+# --- AI機能（Groq API：無料で利用可能） ---
+GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "")
+USE_AI = bool(GROQ_API_KEY)
+GROQ_MODEL = "llama-3.3-70b-versatile"
+GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
 
 
-def _call_gemini(system_prompt, user_message):
-    """Gemini APIを呼び出して応答テキストを返す"""
-    # システムプロンプトをユーザーメッセージに統合（互換性を最大化）
-    combined_message = f"""【指示】\n{system_prompt}\n\n【入力】\n{user_message}"""
-
+def _call_ai(system_prompt, user_message):
+    """Groq APIを呼び出して応答テキストを返す（無料）"""
     payload = json.dumps({
-        "contents": [{"parts": [{"text": combined_message}]}],
-        "generationConfig": {"maxOutputTokens": 500, "temperature": 0.7},
+        "model": GROQ_MODEL,
+        "messages": [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_message},
+        ],
+        "max_tokens": 500,
+        "temperature": 0.7,
     }).encode("utf-8")
 
     req = urllib.request.Request(
-        f"{GEMINI_URL}?key={GEMINI_API_KEY}",
+        GROQ_URL,
         data=payload,
-        headers={"Content-Type": "application/json"},
+        headers={
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {GROQ_API_KEY}",
+        },
         method="POST",
     )
     try:
         with urllib.request.urlopen(req, timeout=30) as resp:
             result = json.loads(resp.read().decode("utf-8"))
-        return result["candidates"][0]["content"]["parts"][0]["text"]
+        return result["choices"][0]["message"]["content"]
     except urllib.error.HTTPError as e:
         error_body = e.read().decode("utf-8")
-        raise Exception(f"Gemini API エラー ({e.code}): {error_body}")
+        raise Exception(f"AI API エラー ({e.code}): {error_body}")
 
 
 # --- テンプレート生成エンジン ---
@@ -268,7 +273,7 @@ def generate_ai(data):
 
 記録文のみを出力してください。前置きや説明は不要です。"""
 
-    return _call_gemini(SYSTEM_PROMPT, user_message)
+    return _call_ai(SYSTEM_PROMPT, user_message)
 
 
 # =====================
@@ -431,7 +436,7 @@ def check_text():
         return jsonify({"success": False, "error": "校正するテキストがありません"}), 400
 
     try:
-        checked_text = _call_gemini(
+        checked_text = _call_ai(
             CHECK_SYSTEM_PROMPT,
             f"以下の支援記録文を校正してください。\n\n{text}",
         )
