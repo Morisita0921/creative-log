@@ -275,8 +275,14 @@ def generate_template(data):
             ]))
 
     # 全体の印象
-    for impression in impressions_list:
-        parts.append(impression.rstrip("。") + "。")
+    if impressions_list:
+        prefix = random.choice([
+            "一日を通して、",
+            "一日を通しての印象としては、",
+            "本日の全体的な印象として、",
+        ])
+        impression_text = "、".join(i.rstrip("。") for i in impressions_list)
+        parts.append(f"{prefix}{impression_text}。")
 
     if general_memo:
         parts.append(general_memo.rstrip("。") + "。")
