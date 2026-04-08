@@ -333,6 +333,11 @@ def generate_template(data):
     if general_memo:
         parts.append(general_memo.rstrip("。") + "。")
 
+    # 電話対応
+    phone_times = data.get("phone_times", [])
+    if phone_times:
+        parts.append("電話対応 " + "、".join(phone_times))
+
     result = "".join(parts)
     result = result.replace("。。", "。")
     return result
