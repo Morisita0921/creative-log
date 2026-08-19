@@ -228,7 +228,7 @@ def save_options(options):
 # --- AI機能（Groq API：無料で利用可能） ---
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "")
 USE_AI = bool(GROQ_API_KEY)
-GROQ_MODEL = "llama-3.3-70b-versatile"
+GROQ_MODEL = "openai/gpt-oss-120b"
 GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
 
 
